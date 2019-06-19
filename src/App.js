@@ -1,21 +1,41 @@
 import React, { Component } from "react";
+import axios from "axios";
 import "./App.css";
+
+const apiEndPoint = "http://jsonplaceholder.typicode.com/posts";
 
 class App extends Component {
   state = {
     posts: []
   };
 
-  handleAdd = () => {
-    console.log("Add");
+  async componentDidMount() {
+    const { data: posts } = await axios.get(apiEndPoint);
+    this.setState({ posts });
+  }
+
+  handleAdd = async () => {
+    const obj = { title: "a", body: "b" };
+    const { data: post } = await axios.post(apiEndPoint, obj);
+
+    const posts = [post, ...this.state.posts];
+    this.setState({ posts });
   };
 
-  handleUpdate = post => {
-    console.log("Update", post);
+  handleUpdate = async post => {
+    post.title = "updated";
+    const { data } = await axios.put(apiEndPoint + "/" + post.id, post);
+
+    const posts = [...this.state.posts];
+    const index = posts.indexOf(post);
+    posts[index] = { ...post };
+    this.setState({ posts });
   };
 
-  handleDelete = post => {
-    console.log("Delete", post);
+  handleDelete = async post => {
+    await axios.delete(apiEndPoint + "/" + post.id);
+    const posts = this.state.posts.filter(p => p.id !== post.id);
+    this.setState({posts});
   };
 
   render() {
